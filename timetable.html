@@ -1,3 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Malaysia Time Forex & Metals Session Map</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: rgba(255,255,255,0.08);
+      --card2: rgba(255,255,255,0.12);
+      --text: #eef2ff;
+      --muted: #a9b4d0;
+      --line: rgba(255,255,255,0.15);
+      --high: #39d98a;
+      --medium: #ffd166;
+      --low: #9aa6bf;
+      --danger: #ff5f6d;
+      --prep: #5cc8ff;
+      --shadow: 0 18px 60px rgba(0,0,0,0.35);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(92,200,255,0.24), transparent 32%),
+        radial-gradient(circle at top right, rgba(255,95,109,0.20), transparent 28%),
+        linear-gradient(135deg, #070a14 0%, #0b1020 48%, #101827 100%);
+      color: var(--text);
+      padding: 28px;
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1.4fr 0.6fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+
+    .hero, .clock-card, .panel, .slot, .legend-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero { padding: 26px; }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 15px;
+    }
+
+    .clock-card {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+      min-height: 150px;
+    }
+
+    .clock-label {
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .clock {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .date {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .panel { padding: 16px; }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      margin-bottom: 8px;
+    }
+
+    select, input {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: rgba(2, 6, 23, 0.65);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    select:focus, input:focus {
+      border-color: rgba(92,200,255,0.8);
+      box-shadow: 0 0 0 4px rgba(92,200,255,0.12);
+    }
+
+    .quick-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 12px;
+      cursor: pointer;
+      transition: 0.18s ease;
+      font-size: 13px;
+    }
+
+    button:hover { transform: translateY(-1px); background: rgba(255,255,255,0.13); }
+    button.active { border-color: rgba(92,200,255,0.95); background: rgba(92,200,255,0.20); }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .metric {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 15px;
+    }
+
+    .metric b { font-size: 24px; display: block; }
+    .metric span { color: var(--muted); font-size: 13px; }
+
+    .slots {
+      display: grid;
+      gap: 14px;
+    }
+
+    .slot {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 150px 1fr 210px;
+      gap: 18px;
+      align-items: start;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slot::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 6px;
+      height: 100%;
+      background: var(--low);
+    }
+
+    .slot.high::before { background: var(--high); }
+    .slot.medium::before { background: var(--medium); }
+    .slot.low::before { background: var(--low); }
+    .slot.danger::before { background: var(--danger); }
+    .slot.prepare::before { background: var(--prep); }
+
+    .time {
+      font-weight: 850;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .session {
+      color: var(--muted);
+      margin-top: 5px;
+      font-size: 13px;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 8px 0 10px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.07);
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 12px;
+      color: #dde6ff;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      width: fit-content;
+      margin-bottom: 10px;
+    }
+
+    .status.high { background: rgba(57,217,138,0.14); color: var(--high); border: 1px solid rgba(57,217,138,0.35); }
+    .status.medium { background: rgba(255,209,102,0.14); color: var(--medium); border: 1px solid rgba(255,209,102,0.35); }
+    .status.low { background: rgba(154,166,191,0.13); color: var(--low); border: 1px solid rgba(154,166,191,0.35); }
+    .status.danger { background: rgba(255,95,109,0.14); color: var(--danger); border: 1px solid rgba(255,95,109,0.35); }
+    .status.prepare { background: rgba(92,200,255,0.14); color: var(--prep); border: 1px solid rgba(92,200,255,0.35); }
+
+    .slot h3 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .slot p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .right-note {
+      background: rgba(2,6,23,0.35);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 13px;
+    }
+
+    .right-note strong { display: block; margin-bottom: 7px; }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .legend-card {
+      padding: 13px;
+      box-shadow: none;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 7px;
+    }
+
+    .footer {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+      margin-top: 18px;
+      padding: 14px 2px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 28px;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+    }
+
+    @media (max-width: 900px) {
+      body { padding: 18px; }
+      header, .controls, .summary { grid-template-columns: 1fr; }
+      .slot { grid-template-columns: 1fr; }
+      .legend { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <section class="hero">
+        <h1>Malaysia Time Forex & Metals Session Map</h1>
+        <p class="subtitle">
+          Select Day 1–5 to see suitable trading windows, sensitive currency pairs, metals focus, and risk notes.
+          Built for MYT traders tracking tick volume, spread, London open, New York open, and rollover behaviour.
+        </p>
+      </section>
+      <section class="clock-card">
+        <div class="clock-label">Kuala Lumpur / Malaysia Time</div>
+        <div id="clock" class="clock">--:--:--</div>
+        <div id="date" class="date">Loading MYT date...</div>
+      </section>
+    </header>
+
+    <section class="controls">
+      <div class="panel">
+        <label for="daySelect">Trading Day</label>
+        <select id="daySelect">
+          <option value="1">Day 1 - Monday</option>
+          <option value="2">Day 2 - Tuesday</option>
+          <option value="3">Day 3 - Wednesday</option>
+          <option value="4">Day 4 - Thursday</option>
+          <option value="5">Day 5 - Friday</option>
+        </select>
+      </div>
+      <div class="panel">
+        <label for="pairSearch">Search Pair / Metal</label>
+        <input id="pairSearch" placeholder="Example: EURUSD, XAUUSD, USDJPY" />
+      </div>
+      <div class="panel">
+        <label>Show Slots</label>
+        <div class="quick-filters">
+          <button data-filter="all" class="active">All</button>
+          <button data-filter="high">Best</button>
+          <button data-filter="prepare">Prepare</button>
+          <button data-filter="danger">Danger</button>
+          <button data-filter="low">Slow</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="summary" id="summary"></section>
+    <main class="slots" id="slots"></main>
+
+    <section class="legend">
+      <div class="legend-card"><span class="dot" style="background: var(--high)"></span><b>Best</b><br><span style="color: var(--muted); font-size: 12px;">High liquidity / movement window</span></div>
+      <div class="legend-card"><span class="dot" style="background: var(--medium)"></span><b>Tradable</b><br><span style="color: var(--muted); font-size: 12px;">Selective entries only</span></div>
+      <div class="legend-card"><span class="dot" style="background: var(--prep)"></span><b>Prepare</b><br><span style="color: var(--muted); font-size: 12px;">Mark range, wait for open</span></div>
+      <div class="legend-card"><span class="dot" style="background: var(--danger)"></span><b>Danger</b><br><span style="color: var(--muted); font-size: 12px;">Spread/news/rollover risk</span></div>
+      <div class="legend-card"><span class="dot" style="background: var(--low)"></span><b>Slow</b><br><span style="color: var(--muted); font-size: 12px;">Usually choppy or thin</span></div>
+    </section>
+
+    <p class="footer">
+      Educational timing map only, not financial advice. Times are based on Malaysia Time during the current DST-style period.
+      Broker server time, holidays, news releases, and liquidity providers can shift real behaviour. Always verify spread and tick volume on your own MT5 broker before entering.
+    </p>
+  </div>
+
+  <script>
+    const baseSlots = [
+      {
+        time: "5:00am - 6:00am",
+        session: "New York close / rollover / daily reset",
+        rating: "danger",
+        title: "Avoid fresh entries unless you know your broker behaviour",
+        fx: ["All majors", "GBPJPY", "EURJPY", "AUDNZD", "Exotics"],
+        metals: ["XAUUSD", "XAGUSD"],
+        note: "Spread can widen sharply. Daily candles reset. Swap/rollover behaviour may affect open positions.",
+        action: "Manage or stay out"
+      },
+      {
+        time: "6:00am - 8:00am",
+        session: "Sydney active / early Asia",
+        rating: "low",
+        title: "Light activity, mainly AUD/NZD pairs",
+        fx: ["AUDUSD", "NZDUSD", "AUDJPY", "NZDJPY"],
+        metals: ["XAUUSD"],
+        note: "Thin liquidity. Monday morning can gap. Good for observation, not aggressive trading.",
+        action: "Observe"
+      },
+      {
+        time: "8:00am - 10:00am",
+        session: "Tokyo open",
+        rating: "medium",
+        title: "JPY pairs wake up",
+        fx: ["USDJPY", "EURJPY", "GBPJPY", "AUDJPY", "NZDJPY"],
+        metals: ["XAUUSD"],
+        note: "Good time to track Asia range creation and JPY momentum.",
+        action: "Selective trade"
+      },
+      {
+        time: "10:00am - 12:00pm",
+        session: "Tokyo mid-session / China data window",
+        rating: "medium",
+        title: "Asia continuation or range formation",
+        fx: ["USDJPY", "AUDUSD", "NZDUSD", "AUDJPY", "USDCNH"],
+        metals: ["XAUUSD"],
+        note: "Gold may react if USD, China sentiment, or yields move.",
+        action: "Selective trade"
+      },
+      {
+        time: "12:00pm - 2:00pm",
+        session: "Asia lunch / Sydney closing",
+        rating: "low",
+        title: "Usually slower and choppy",
+        fx: ["AUDUSD", "NZDUSD", "USDJPY"],
+        metals: ["XAUUSD"],
+        note: "Tick volume often fades. Not the best scalping window.",
+        action: "Avoid or observe"
+      },
+      {
+        time: "2:00pm - 3:00pm",
+        session: "Pre-London positioning",
+        rating: "prepare",
+        title: "Prepare for London open",
+        fx: ["EURUSD", "GBPUSD", "EURJPY", "GBPJPY"],
+        metals: ["XAUUSD"],
+        note: "Mark Asia high, Asia low, previous day high/low, and current spread.",
+        action: "Prepare setup"
+      },
+      {
+        time: "3:00pm - 5:00pm",
+        session: "London open",
+        rating: "high",
+        title: "Major trading window",
+        fx: ["EURUSD", "GBPUSD", "EURJPY", "GBPJPY", "EURGBP", "USDCHF"],
+        metals: ["XAUUSD", "XAGUSD"],
+        note: "Asia range sweep is common. First 5-15 minutes can fake out both sides.",
+        action: "Best window, but wait for confirmation"
+      },
+      {
+        time: "5:00pm - 7:00pm",
+        session: "London mid-session",
+        rating: "high",
+        title: "Cleaner European liquidity",
+        fx: ["EURUSD", "GBPUSD", "EURGBP", "USDCHF"],
+        metals: ["XAUUSD", "XAGUSD"],
+        note: "Often cleaner than the open. Good for continuation if London already chose direction.",
+        action: "Best window"
+      },
+      {
+        time: "7:00pm - 9:00pm",
+        session: "Pre-New York / US data prep",
+        rating: "prepare",
+        title: "Prepare for US session and news",
+        fx: ["EURUSD", "GBPUSD", "USDJPY", "USDCAD"],
+        metals: ["XAUUSD", "XAGUSD"],
+        note: "Check US calendar before trading. Gold becomes very sensitive before US data.",
+        action: "Prepare / reduce risk"
+      },
+      {
+        time: "9:00pm - 12:00am",
+        session: "New York open + London overlap",
+        rating: "high",
+        title: "Highest activity window",
+        fx: ["EURUSD", "GBPUSD", "USDJPY", "USDCAD", "GBPJPY", "EURJPY"],
+        metals: ["XAUUSD", "XAGUSD"],
+        note: "Strongest liquidity and volatility. Best for tick-volume study, but news can be violent.",
+        action: "Best window"
+      },
+      {
+        time: "11:00pm - 12:00am",
+        session: "London close / London fix area",
+        rating: "danger",
+        title: "Possible fix-related spike or reversal",
+        fx: ["EURUSD", "GBPUSD", "EURGBP", "USDCHF"],
+        metals: ["XAUUSD"],
+        note: "This overlaps with the 9pm-12am window but deserves special caution. Sudden flows can appear.",
+        action: "Manage risk"
+      },
+      {
+        time: "12:00am - 2:00am",
+        session: "New York mid-session",
+        rating: "medium",
+        title: "US continuation or reversal phase",
+        fx: ["USDJPY", "USDCAD", "EURUSD", "GBPUSD"],
+        metals: ["XAUUSD"],
+        note: "London has left. Watch whether NY continues or reverses the earlier move.",
+        action: "Selective trade / manage"
+      },
+      {
+        time: "2:00am - 5:00am",
+        session: "New York late / liquidity fading",
+        rating: "low",
+        title: "Fading liquidity before rollover",
+        fx: ["USDJPY", "USDCAD", "EURUSD"],
+        metals: ["XAUUSD"],
+        note: "New entries become less attractive. Protect profits before rollover risk.",
+        action: "Manage, avoid revenge trades"
+      }
+    ];
+
+    const dayProfiles = {
+      1: {
+        name: "Day 1 - Monday",
+        bias: "First liquidity of the week. Watch gaps, wider spreads, and slower confirmation. Best window is usually London to NY overlap.",
+        modifier: slot => {
+          const s = { ...slot };
+          if (slot.time === "6:00am - 8:00am") {
+            s.rating = "danger";
+            s.title = "Monday open gap/spread caution";
+            s.note = "Weekend gaps and thin liquidity can distort early signals. Do not treat the first quote as normal liquidity.";
+          }
+          if (slot.time === "3:00pm - 5:00pm") {
+            s.note = "First real European liquidity of the week. Asia high/low sweep is common. Wait for the market to show its hand.";
+          }
+          return s;
+        }
+      },
+      2: {
+        name: "Day 2 - Tuesday",
+        bias: "Usually cleaner than Monday. Good day for studying real session behaviour and tick-volume expansion.",
+        modifier: slot => ({ ...slot })
+      },
+      3: {
+        name: "Day 3 - Wednesday",
+        bias: "Midweek can bring strong continuation or reversal. Be alert for US data and Fed-related volatility.",
+        modifier: slot => {
+          const s = { ...slot };
+          if (["7:00pm - 9:00pm", "9:00pm - 12:00am"].includes(slot.time)) {
+            s.note += " Wednesday can be extra sensitive to US data/Fed flow.";
+          }
+          return s;
+        }
+      },
+      4: {
+        name: "Day 4 - Thursday",
+        bias: "Often strong volatility. US data windows can move USD pairs and metals sharply.",
+        modifier: slot => {
+          const s = { ...slot };
+          if (["7:00pm - 9:00pm", "9:00pm - 12:00am"].includes(slot.time)) {
+            s.note += " Thursday often has important US labour/economic releases, so verify the news calendar.";
+          }
+          return s;
+        }
+      },
+      5: {
+        name: "Day 5 - Friday",
+        bias: "Can move hard, then become ugly near weekly close. Avoid falling in love with late-Friday trades.",
+        modifier: slot => {
+          const s = { ...slot };
+          if (slot.time === "2:00am - 5:00am") {
+            s.rating = "danger";
+            s.title = "Weekly close risk building";
+            s.note = "Liquidity fades and weekend gap risk approaches. Fresh entries are usually poor quality.";
+          }
+          if (slot.time === "9:00pm - 12:00am") {
+            s.note += " If it is NFP Friday, this window can be explosive for USD and gold.";
+          }
+          return s;
+        }
+      }
+    };
+
+    const ratingLabel = {
+      high: "Best",
+      medium: "Tradable",
+      low: "Slow",
+      danger: "Danger",
+      prepare: "Prepare"
+    };
+
+    let activeFilter = "all";
+
+    function getDaySlots(day) {
+      const profile = dayProfiles[day];
+      return baseSlots.map(profile.modifier);
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const time = new Intl.DateTimeFormat('en-MY', {
+        timeZone: 'Asia/Kuala_Lumpur', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+      }).format(now);
+      const date = new Intl.DateTimeFormat('en-MY', {
+        timeZone: 'Asia/Kuala_Lumpur', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      }).format(now);
+      document.getElementById('clock').textContent = time;
+      document.getElementById('date').textContent = date;
+    }
+
+    function renderSummary(slots, day) {
+      const counts = slots.reduce((acc, s) => {
+        acc[s.rating] = (acc[s.rating] || 0) + 1;
+        return acc;
+      }, {});
+      const bestPairs = Array.from(new Set(slots.filter(s => s.rating === 'high').flatMap(s => s.fx))).slice(0, 6);
+      const profile = dayProfiles[day];
+      document.getElementById('summary').innerHTML = `
+        <div class="metric"><b>${counts.high || 0}</b><span>Best trading windows</span></div>
+        <div class="metric"><b>${counts.prepare || 0}</b><span>Preparation windows</span></div>
+        <div class="metric"><b>${counts.danger || 0}</b><span>Danger windows</span></div>
+        <div class="metric"><b>${bestPairs.join(', ')}</b><span>Main pairs for ${profile.name}</span></div>
+      `;
+    }
+
+    function render() {
+      const day = document.getElementById('daySelect').value;
+      const query = document.getElementById('pairSearch').value.trim().toUpperCase();
+      const profile = dayProfiles[day];
+      let slots = getDaySlots(day);
+
+      if (activeFilter !== 'all') {
+        slots = slots.filter(s => s.rating === activeFilter);
+      }
+      if (query) {
+        slots = slots.filter(s => [...s.fx, ...s.metals].some(p => p.toUpperCase().includes(query)));
+      }
+
+      renderSummary(getDaySlots(day), day);
+
+      const container = document.getElementById('slots');
+      if (!slots.length) {
+        container.innerHTML = `<div class="empty">No matching slot found. Try another pair, metal, or filter.</div>`;
+        return;
+      }
+
+      const intro = `
+        <article class="slot prepare">
+          <div>
+            <div class="time">${profile.name}</div>
+            <div class="session">MYT trading profile</div>
+          </div>
+          <div>
+            <span class="status prepare">Day Bias</span>
+            <h3>How to read this day</h3>
+            <p>${profile.bias}</p>
+          </div>
+          <div class="right-note">
+            <strong>Simple rule</strong>
+            <p>Best learning window: 2:30pm - 12:00am MYT. Track M1 tick volume, spread, and Asia high/low sweep.</p>
+          </div>
+        </article>
+      `;
+
+      const cards = slots.map(slot => `
+        <article class="slot ${slot.rating}">
+          <div>
+            <div class="time">${slot.time}</div>
+            <div class="session">${slot.session}</div>
+          </div>
+          <div>
             <span class="status ${slot.rating}">${ratingLabel[slot.rating]}</span>
             <h3>${slot.title}</h3>
             <div class="tag-row">
