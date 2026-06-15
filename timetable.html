@@ -1,0 +1,35 @@
+            <span class="status ${slot.rating}">${ratingLabel[slot.rating]}</span>
+            <h3>${slot.title}</h3>
+            <div class="tag-row">
+              ${slot.fx.map(pair => `<span class="tag">FX: ${pair}</span>`).join('')}
+              ${slot.metals.map(pair => `<span class="tag">Metal: ${pair}</span>`).join('')}
+            </div>
+            <p>${slot.note}</p>
+          </div>
+          <div class="right-note">
+            <strong>Action</strong>
+            <p>${slot.action}</p>
+          </div>
+        </article>
+      `).join('');
+
+      container.innerHTML = intro + cards;
+    }
+
+    document.getElementById('daySelect').addEventListener('change', render);
+    document.getElementById('pairSearch').addEventListener('input', render);
+    document.querySelectorAll('button[data-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('button[data-filter]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeFilter = btn.dataset.filter;
+        render();
+      });
+    });
+
+    updateClock();
+    setInterval(updateClock, 1000);
+    render();
+  </script>
+</body>
+</html>
